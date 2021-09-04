@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Valve.VR;
+using UnityEngine.XR;
 
 public class WandControlGeneralInteraction : MonoBehaviour
 {
@@ -28,7 +28,7 @@ public class WandControlGeneralInteraction : MonoBehaviour
 	//// ************************* For basic picking up and throwing behavior *************************
 	//#endregion
 	// This is a hash-set of all the objects that this wand is interacting with Hash-sets are like lists but with no duplicates inside of it
-	private SteamVR_Input_Sources hand;
+	private InputDevice hand;    // Todo: Old SteamVr Code
 	private HashSet<InteractableObject> hoveredObject = new HashSet<InteractableObject>();
 	private CubeButton button;
 	private InteractableObject interactingItem;
@@ -40,55 +40,67 @@ public class WandControlGeneralInteraction : MonoBehaviour
 	private float colorLerp;
 
 	public bool leftHand;
-	
-    // Set Up
-    void Start()
-    {
+	private bool lastTriggerState;
+
+	// Set Up
+	void Start()
+	{
 		anim = this.transform.GetChild(0).GetComponent<Animator>();
 
-		// Set the tracked object
-		if (leftHand == true)
-			hand = SteamVR_Input_Sources.LeftHand;
+		XRNode whichHand = leftHand ? XRNode.LeftHand : XRNode.RightHand;
+		List<InputDevice> handDevices = new List<InputDevice>();
+		InputDevices.GetDevicesAtXRNode(whichHand, handDevices);
+		if (handDevices.Count == 1)
+			hand = handDevices[0];
 		else
-			hand = SteamVR_Input_Sources.RightHand;
+			Debug.Log("No left hand :(");
 
 		mr = this.transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
 		originalColor = mr.materials[1].color;
 	}
 
-    void Update()
-    {
-		if (anim != null)
-		{
-			int controlerInd = leftHand == true ? 0 : 1;
-			anim.SetFloat("Blend", SteamVR_Actions._default.TriggerPull.GetAxis(hand));
-		}
+	void Update()
+	{
+		bool triggerPressed;
+		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
+		float triggerFloat;
+		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.trigger, out triggerFloat);
 
-		if (SteamVR_Actions._default.MenuButton.GetStateDown(hand))
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+		if (anim != null)
+			anim.SetFloat("Blend", triggerFloat);
+
+		// if (SteamVR_Actions._default.MenuButton.GetStateDown(hand))
+		// 	SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
 		// If you press the trigger button
-		if (SteamVR_Actions._default.TriggerClick.GetStateDown(hand))
-        {
+
+		if (triggerPressed == true && lastTriggerState == false)
+		{
+			Debug.Log("Clicked");
 			// Calculate the minimum distance if there are multiple object you are interacting with
 			interactingItem = this.GetClosestItem();
 
 			// If you aren't holding anything
 			this.CheckHoldIfNull();
 
-            if (interactingItem != null)
-            {
+			if (interactingItem != null)
+			{
+				Debug.Log("Holding");
 				interactingItem.StartInteraction(this);
 				cubeColor = interactingItem.GetCubeColor().color;
 			}
 		}
 
-		if (SteamVR_Actions._default.TriggerClick.GetStateDown(hand) && button != null)
-			button.PressButton();
+		// Todo: Old SteamVr Code
+		// if (SteamVR_Actions._default.TriggerClick.GetStateDown(hand) && button != null)
+		// 	button.PressButton();
 
 		// If you release the trigger button
-		if (SteamVR_Actions._default.TriggerClick.GetStateUp(hand))
-        {
+		if (triggerPressed == false && lastTriggerState == true)
+		{
+			Debug.Log("Un-Clicked");
+
 			this.DropBox();
 		}
 
@@ -109,21 +121,23 @@ public class WandControlGeneralInteraction : MonoBehaviour
 				mr.materials[1].color = Color.Lerp(originalColor, cubeColor, colorLerp);
 			}
 		}
+
+		lastTriggerState = triggerPressed;
 	}
 
-    // If you aren't holding anything
-    private void CheckHoldIfNull()
-    {
-        // Check if you grabbed anything
-        if (interactingItem != null)
-        {
-            // End interaction if you are all ready holding it with other hand
-            if (interactingItem.IsInteracting() == true)
-            {
+	// If you aren't holding anything
+	private void CheckHoldIfNull()
+	{
+		// Check if you grabbed anything
+		if (interactingItem != null)
+		{
+			// End interaction if you are all ready holding it with other hand
+			if (interactingItem.IsInteracting() == true)
+			{
 				interactingItem.EndInteraction(this);
-            }
-        }
-    }
+			}
+		}
+	}
 
 	public void DropBox()
 	{
@@ -148,37 +162,37 @@ public class WandControlGeneralInteraction : MonoBehaviour
 
 	// Calculate the minimum distance if there are multiple object you are interacting with
 	private InteractableObject GetClosestItem()
-    {
-        float minDistance = float.PositiveInfinity;
-        float distance;
+	{
+		float minDistance = float.PositiveInfinity;
+		float distance;
 
 		InteractableObject closes = null;
 
-        foreach (InteractableObject item in hoveredObject)
-        {
-            if (item != null)
-            {
-                distance = (item.transform.position - this.transform.position).sqrMagnitude;
+		foreach (InteractableObject item in hoveredObject)
+		{
+			if (item != null)
+			{
+				distance = (item.transform.position - this.transform.position).sqrMagnitude;
 
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
+				if (distance < minDistance)
+				{
+					minDistance = distance;
 					closes = item;
-                }
-            }
-        }
+				}
+			}
+		}
 
 		return closes;
-    }
+	}
 
-    void OnTriggerEnter(Collider other)
-    {
-        // Find what its touching
-        InteractableObject collidedObject = other.GetComponent<InteractableObject>();
-        // Set it up to be carried
-        if(collidedObject != null && other.GetType() != typeof(SphereCollider))
-            hoveredObject.Add(collidedObject);
-    }
+	void OnTriggerEnter(Collider other)
+	{
+		// Find what its touching
+		InteractableObject collidedObject = other.GetComponent<InteractableObject>();
+		// Set it up to be carried
+		if (collidedObject != null && other.GetType() != typeof(SphereCollider))
+			hoveredObject.Add(collidedObject);
+	}
 
 	private void OnTriggerStay(Collider other)
 	{
@@ -187,15 +201,15 @@ public class WandControlGeneralInteraction : MonoBehaviour
 	}
 
 	void OnTriggerExit(Collider other)
-    {
-        // Find what its touching
-        InteractableObject collidedObject = other.GetComponent<InteractableObject>();
-        // Set it up to be dropped
-        if (collidedObject != null && other.GetType() != typeof(SphereCollider))
-        {
-            // Set the color to be un-highlighted
-            hoveredObject.Remove(collidedObject);
-        }
+	{
+		// Find what its touching
+		InteractableObject collidedObject = other.GetComponent<InteractableObject>();
+		// Set it up to be dropped
+		if (collidedObject != null && other.GetType() != typeof(SphereCollider))
+		{
+			// Set the color to be un-highlighted
+			hoveredObject.Remove(collidedObject);
+		}
 
 		CubeButton cb = other.GetComponent<CubeButton>();
 		if (cb != null)

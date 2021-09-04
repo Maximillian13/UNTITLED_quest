@@ -431,4 +431,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Sandbox.unity
     guid: 697fe10cad133f446898f4fce3beb91a
-  m_configObjects: {}
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 6571aca3153e9604890e82a0f25385cb,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fb0b8c79bfbe9524092ca05dc9a12780,
+      type: 2}
