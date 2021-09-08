@@ -6,27 +6,6 @@ using UnityEngine.XR;
 
 public class WandControlGeneralInteraction : MonoBehaviour
 {
-	//#region PickUpDrop
-	//// ************************* For basic picking up and throwing behavior *************************
-	//// Get the required buttons
-	//private Valve.VR.EVRButtonId triggerButton = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
-	//   private Valve.VR.EVRButtonId menuButton = Valve.VR.EVRButtonId.k_EButton_ApplicationMenu;
-	//private Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_Grip;
-
-
-	//// Understand which controller it is
-	//private SteamVR_TrackedObject trackedObject;
-	//   private SteamVR_Controller.Device controller
-	//   {
-	//       // Gives the index of the connected device
-	//       get
-	//       {
-	//           return SteamVR_Controller.Input((int)trackedObject.index);
-	//       }
-	//   }
-
-	//// ************************* For basic picking up and throwing behavior *************************
-	//#endregion
 	// This is a hash-set of all the objects that this wand is interacting with Hash-sets are like lists but with no duplicates inside of it
 	private InputDevice hand;    // Todo: Old SteamVr Code
 	private HashSet<InteractableObject> hoveredObject = new HashSet<InteractableObject>();
