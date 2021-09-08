@@ -30,14 +30,14 @@ public class LevelControl : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if(specail == true)
+		if (specail == true)
 		{
 			if (forceLevel != -1)
 			{
 				// Get and start fade
 				if (eyeFade == null)
 				{
-					eyeFade = GameObject.Find("[CameraRig]").transform.Find("Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
+					eyeFade = GameObject.Find("XR Rig").transform.Find("Camera Offset").Find("Main Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
 					eyeFade.FadeWhite();
 				}
 
@@ -75,7 +75,7 @@ public class LevelControl : MonoBehaviour
 		// Get and start fade
 		if (eyeFade == null)
 		{
-			eyeFade = GameObject.Find("[CameraRig]").transform.Find("Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
+			eyeFade = GameObject.Find("XR Rig").transform.Find("Camera Offset").Find("Main Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
 			eyeFade.FadeWhite();
 		}
 
@@ -105,7 +105,7 @@ public class LevelControl : MonoBehaviour
 
 	public void ForceLoadLevel(int levelToLoad, bool killMusic = false)
 	{
-		if(killMusic == true)
+		if (killMusic == true)
 		{
 			GameObject music = GameObject.Find("Music");
 			if (music != null)

@@ -44,13 +44,13 @@ public class SpecailRecepticle : MonoBehaviour
 				// Get and start fade
 				if (eyeFade == null)
 				{
-					eyeFade = GameObject.Find("[CameraRig]").transform.Find("Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
+					eyeFade = GameObject.Find("XR Rig").transform.Find("Camera Offset").Find("Main Camera").Find("EyeCover").GetComponent<EyeFadeControl>();
 					eyeFade.FadeWhite();
 				}
 
 				// After fade load level
 				fadingWhiteTimer += Time.deltaTime;
-				if (fadingWhiteTimer > .3f)
+				if (fadingWhiteTimer > .6f)
 				{
 					if (specailLevels == false)
 					{
@@ -58,7 +58,7 @@ public class SpecailRecepticle : MonoBehaviour
 					}
 					else
 					{
-						if(levelToLoad == -1)
+						if (levelToLoad == -1)
 							SceneManager.LoadScene("Sandbox");
 						else
 							SceneManager.LoadScene("S" + levelToLoad);

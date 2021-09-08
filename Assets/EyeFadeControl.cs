@@ -9,17 +9,17 @@ public class EyeFadeControl : MonoBehaviour
 	private float timer;
 	private bool fadeWhite;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-		spriteRend = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+	// Start is called before the first frame update
+	void Start()
+	{
+		spriteRend = this.GetComponent<SpriteRenderer>();
 		alpha = 1;
-    }
+	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        if(fadeWhite == false)
+	// Update is called once per frame
+	void Update()
+	{
+		if (fadeWhite == false)
 		{
 			alpha -= Time.deltaTime * 2;
 			spriteRend.color = new Color(spriteRend.color.r, spriteRend.color.g, spriteRend.color.b, alpha);
@@ -29,7 +29,7 @@ public class EyeFadeControl : MonoBehaviour
 			alpha += Time.deltaTime * 2;
 			spriteRend.color = new Color(spriteRend.color.r, spriteRend.color.g, spriteRend.color.b, alpha);
 		}
-    }
+	}
 
 	public void FadeWhite()
 	{
