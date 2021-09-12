@@ -81,10 +81,7 @@ public class InteractableObject : MonoBehaviour
 
 
 		if (poss.Count == 3)
-		{
-			Debug.Log("New New ");
 			posDelta = ((poss[0] + poss[1] + poss[2]) / 3);
-		}
 		else
 			posDelta = currPos;
 
@@ -94,8 +91,9 @@ public class InteractableObject : MonoBehaviour
 
 		Vector3 currVel = posDelta * velocityFactor * Time.deltaTime;
 
-		if (vels.Count == 3)
+		if (vels.Count == 4)
 		{
+			vels[3] = vels[2];
 			vels[2] = vels[1];
 			vels[1] = vels[0];
 			vels[0] = currVel;
@@ -103,12 +101,10 @@ public class InteractableObject : MonoBehaviour
 		else
 			vels.Add(currVel);
 
-		Debug.Log(vels.Count);
 
-		if (vels.Count == 3)
-		{
-			this.ridge.velocity = ((vels[0] + vels[1] + vels[2]) / 3) * .75f;
-		}
+		// Ignore the first one so the movement from releasing the trigger is reduced 
+		if (vels.Count == 4)
+			this.ridge.velocity = ((/*vels[0] +*/ vels[1] + vels[2] + vels[3]) / 3) * .5f;
 		else
 			this.ridge.velocity = currVel;
 		// Set the rotation based on where the wand is
@@ -128,7 +124,7 @@ public class InteractableObject : MonoBehaviour
 			return;
 		}
 
-		this.ridge.angularVelocity = Time.deltaTime * angle * axis * rotationFactor * .75f;
+		this.ridge.angularVelocity = Time.deltaTime * angle * axis * rotationFactor * .4f;
 	}
 
 	// At the start of an interaction
@@ -151,6 +147,7 @@ public class InteractableObject : MonoBehaviour
 		{
 			// Detach wand
 			vels.Clear();
+			poss.Clear();
 			attachedWand = null;
 			currentlyInteracting = false;
 			wand.DropBox();
@@ -162,6 +159,8 @@ public class InteractableObject : MonoBehaviour
 	public void EndInteraction()
 	{
 		// Detach wand
+		vels.Clear();
+		poss.Clear();
 		attachedWand = null;
 		currentlyInteracting = false;
 		if (boxProp != null)
