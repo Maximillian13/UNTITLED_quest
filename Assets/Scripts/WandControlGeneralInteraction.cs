@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
@@ -20,19 +19,13 @@ public class WandControlGeneralInteraction : MonoBehaviour
 
 	public bool leftHand;
 	private bool lastTriggerState;
-
+	private bool foundHand;
 	// Set Up
 	void Start()
 	{
 		anim = this.transform.GetChild(0).GetComponent<Animator>();
 
-		XRNode whichHand = leftHand ? XRNode.LeftHand : XRNode.RightHand;
-		List<InputDevice> handDevices = new List<InputDevice>();
-		InputDevices.GetDevicesAtXRNode(whichHand, handDevices);
-		if (handDevices.Count == 1)
-			hand = handDevices[0];
-		else
-			Debug.Log("No left hand :(");
+		this.TryToFindHand();
 
 		mr = this.transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
 		originalColor = mr.materials[1].color;
@@ -40,23 +33,31 @@ public class WandControlGeneralInteraction : MonoBehaviour
 
 	void Update()
 	{
+		if (foundHand == false)
+		{
+			this.TryToFindHand();
+			return;
+		}
+
 		bool triggerPressed;
 		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
 		float triggerFloat;
 		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.trigger, out triggerFloat);
 
+		bool aButtonPress;
+		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primaryButton, out aButtonPress);
+
 
 		if (anim != null)
 			anim.SetFloat("Blend", triggerFloat);
 
-		// if (SteamVR_Actions._default.MenuButton.GetStateDown(hand))
-		// 	SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		if (aButtonPress == true && Time.timeSinceLevelLoad > 1f)
+			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
 		// If you press the trigger button
 
 		if (triggerPressed == true && lastTriggerState == false)
 		{
-			Debug.Log("Clicked");
 			// Calculate the minimum distance if there are multiple object you are interacting with
 			interactingItem = this.GetClosestItem();
 
@@ -65,23 +66,17 @@ public class WandControlGeneralInteraction : MonoBehaviour
 
 			if (interactingItem != null)
 			{
-				Debug.Log("Holding");
 				interactingItem.StartInteraction(this);
 				cubeColor = interactingItem.GetCubeColor().color;
 			}
 		}
 
-		// Todo: Old SteamVr Code
-		// if (SteamVR_Actions._default.TriggerClick.GetStateDown(hand) && button != null)
-		// 	button.PressButton();
+		if (triggerPressed == true && lastTriggerState == false && button != null)
+			button.PressButton();
 
 		// If you release the trigger button
 		if (triggerPressed == false && lastTriggerState == true)
-		{
-			Debug.Log("Un-Clicked");
-
 			this.DropBox();
-		}
 
 		// Hand Color
 		if (interactingItem != null)
@@ -102,6 +97,20 @@ public class WandControlGeneralInteraction : MonoBehaviour
 		}
 
 		lastTriggerState = triggerPressed;
+	}
+
+	private void TryToFindHand()
+	{
+		XRNode whichHand = leftHand ? XRNode.LeftHand : XRNode.RightHand;
+		List<InputDevice> handDevices = new List<InputDevice>();
+		InputDevices.GetDevicesAtXRNode(whichHand, handDevices);
+		if (handDevices.Count == 1)
+		{
+			hand = handDevices[0];
+			foundHand = true;
+		}
+		else
+			Debug.Log("Have not found " + (leftHand ? "left" : "right") + " hand");
 	}
 
 	// If you aren't holding anything

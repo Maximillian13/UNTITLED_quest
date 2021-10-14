@@ -22,7 +22,7 @@ public class Recepticle : MonoBehaviour
 	private bool fade;
 
 	// Use this for initialization
-	void Start ()
+	void Start()
 	{
 		mat = this.GetComponent<MeshRenderer>().materials[0];
 		startCol = mat.color;
@@ -38,7 +38,7 @@ public class Recepticle : MonoBehaviour
 		{
 			if (lc.GetMultiRec() == true && lc.GetMultiRecDone() == false)
 			{
-				if(multiRecWaitTimer >= 1.5f)
+				if (multiRecWaitTimer >= 1.5f)
 				{
 					fade = false;
 					instanceDoneAndWaiting = false;
@@ -50,7 +50,7 @@ public class Recepticle : MonoBehaviour
 
 			mat.color = Color.Lerp(startCol, endCol, t / duration);
 			t += Time.deltaTime;
-			if (t / duration >= 1.25) 
+			if (t / duration >= 1.25)
 			{
 				fade = false;
 				complete = true;
@@ -60,7 +60,7 @@ public class Recepticle : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if(other.tag == "Box" && other.GetType() == typeof(BoxCollider)) // If it is the box
+		if (other.tag == "Box" && other.GetType() == typeof(BoxCollider)) // If it is the box
 		{
 			// If the box is the one we want
 			BoxInformation boxInfo = other.GetComponent<BoxInformation>();
