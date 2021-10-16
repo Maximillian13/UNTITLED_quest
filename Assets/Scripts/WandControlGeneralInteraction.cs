@@ -51,11 +51,10 @@ public class WandControlGeneralInteraction : MonoBehaviour
 		if (anim != null)
 			anim.SetFloat("Blend", triggerFloat);
 
-		if (aButtonPress == true && Time.timeSinceLevelLoad > 1f)
+		if (aButtonPress == true && Time.timeSinceLevelLoad > 1f && SceneManager.GetActiveScene().buildIndex != 0)
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
 		// If you press the trigger button
-
 		if (triggerPressed == true && lastTriggerState == false)
 		{
 			// Calculate the minimum distance if there are multiple object you are interacting with
