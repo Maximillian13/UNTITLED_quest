@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 {
-    // Sound
+	// Sound
 	public AudioSource leaveSound;
 	public AudioSource hum;
 	public AudioSource desSound;
@@ -28,9 +28,10 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 
 	private bool fading;
 
-    private YellowBoxProperties connectedSticky;
+	private YellowBoxProperties connectedSticky;
 
-    private List<FixedJoint> fjs = new List<FixedJoint>();
+	private List<GameObject> connectedObjects = new List<GameObject>();
+	private List<FixedJoint> fjs = new List<FixedJoint>();
 
 	void OnEnable()
 	{
@@ -59,7 +60,7 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 					numbersSprites[i].color = new Color(1, 1, 1, a);
 			}
 			t += Time.deltaTime;
-			if (t / duration >= 1.3f) 
+			if (t / duration >= 1.3f)
 				Destroy(this.gameObject);
 		}
 
@@ -75,7 +76,7 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 	}
 
 
-    // If it hits a wall or a cube
+	// If it hits a wall or a cube
 	void OnTriggerEnter(Collider other)
 	{
 		if (active == true)
@@ -84,17 +85,20 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 			{
 				if (other.GetComponent<BoxBlocker>() == null) // Do not stick to the table
 				{
-                    // If it is a cube connect to that rigid body if not just connect to the world (null)
+					// If it is a cube connect to that rigid body if not just connect to the world (null)
 					FixedJoint fj = this.gameObject.AddComponent<FixedJoint>();
 					Rigidbody rb = other.GetComponent<Rigidbody>();
-                    if (rb != null)
-                    {
-                        rb.GetComponent<IBoxProperties>().ConnectedToSticky(this);
-                        fj.connectedBody = rb;
-                    }
-                    else
-                        fj.connectedBody = null;
+					// Turn off mass for other boxes so sticking it doesnt freak it out big time
+					if (rb != null)
+					{
+						rb.GetComponent<IBoxProperties>().ConnectedToSticky(this);
+						rb.mass = .25f;
+						fj.connectedBody = rb;
+					}
+					else
+						fj.connectedBody = null;
 
+					connectedObjects.Add(other.gameObject);
 					fjs.Add(fj); // adds to list so it can be destroyed later 
 				}
 			}
@@ -125,13 +129,13 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 	{
 		if (fading == false)
 		{
-            if (connectedSticky != null) // If there it is connected to sticky get rid of connection
-                connectedSticky.DestroyFJConnections();
-            if (playSound == true)
+			if (connectedSticky != null) // If there it is connected to sticky get rid of connection
+				connectedSticky.DestroyFJConnections();
+			if (playSound == true)
 				desSound.Play();
 			DestroyFJConnections();
 			io.TurnOffTrail();
-            io.EndInteraction();
+			io.EndInteraction();
 			io.enabled = false;
 
 			Material[] ms = new Material[2];
@@ -148,16 +152,23 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 		}
 	}
 
-    // Destroy all Fixed joid connections that this cube has
+	// Destroy all Fixed joid connections that this cube has
 	public void DestroyFJConnections()
 	{
+		if (connectedObjects.Count > 0)
+		{
+			GameObject[] connObjs = connectedObjects.ToArray();
+			foreach (GameObject co in connObjs)
+			{
+				if (co != null && co.GetComponent<IBoxProperties>() != null)
+					co.GetComponent<Rigidbody>().mass = 1;
+			}
+		}
 		if (fjs.Count > 0)
 		{
 			FixedJoint[] fja = fjs.ToArray();
 			for (int x = 0; x < fja.Length; x++)
-			{
 				Destroy(fja[x]);
-			}
 		}
 	}
 
@@ -171,11 +182,11 @@ public class YellowBoxProperties : MonoBehaviour, IBoxProperties
 		return;
 	}
 
-    // Set if this is connected to a sticky block
-    public void ConnectedToSticky(YellowBoxProperties ybp)
-    {
-        connectedSticky = ybp;
-    }
+	// Set if this is connected to a sticky block
+	public void ConnectedToSticky(YellowBoxProperties ybp)
+	{
+		connectedSticky = ybp;
+	}
 
 	public bool LeftStartBox()
 	{

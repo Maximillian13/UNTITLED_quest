@@ -38,7 +38,7 @@ public class EyeFadeControl : MonoBehaviour
 			spriteRend.color = new Color(spriteRend.color.r, spriteRend.color.g, spriteRend.color.b, alpha);
 			foreach (AudioSource audio in audiosToFade)
 			{
-				if (audio.gameObject.name != "Music")
+				if (audio != null && audio.gameObject.name != "Music")
 					audio.volume = 1 - alpha;
 			}
 		}
