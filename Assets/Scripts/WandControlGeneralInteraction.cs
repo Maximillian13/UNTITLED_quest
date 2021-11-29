@@ -47,12 +47,19 @@ public class WandControlGeneralInteraction : MonoBehaviour
 		bool aButtonPress;
 		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primaryButton, out aButtonPress);
 
+		bool bButtonPress;
+		hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.secondaryButton, out bButtonPress);
+
 
 		if (anim != null)
 			anim.SetFloat("Blend", triggerFloat);
 
 		if (aButtonPress == true && Time.timeSinceLevelLoad > 1f && SceneManager.GetActiveScene().buildIndex != 0)
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+		// Todo: Remove 
+		if (bButtonPress == true && Time.timeSinceLevelLoad > 1f)
+			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
 
 		// If you press the trigger button
 		if (triggerPressed == true && lastTriggerState == false)

@@ -16,14 +16,12 @@ public class LevelSkipControl : MonoBehaviour
 	}
 
 	// Re-enable based on what levels they have been to
-	void Start ()
+	void Start()
 	{
 		int levelsCompleted = PlayerPrefs.GetInt("Level");
 
-
-
-
-		if(levelsCompleted >= 1)
+		// Todo: This needs to be updated to fit the new levels 
+		if (levelsCompleted >= 1)
 		{
 			recepticles[0].SetActive(true);
 			normalReceptical.SetActive(false);
@@ -41,17 +39,17 @@ public class LevelSkipControl : MonoBehaviour
 			recepticles[5].SetActive(true);
 		if (levelsCompleted >= 61)
 			recepticles[6].SetActive(true);
-		if (levelsCompleted >= 66)
+		if (levelsCompleted >= 63)
 			recepticles[7].SetActive(true);
-		if (levelsCompleted >= 77)
+		if (levelsCompleted >= 71)
 			recepticles[8].SetActive(true);
-		if (levelsCompleted >= 82)
+		if (levelsCompleted >= 79)
 			recepticles[9].SetActive(true);
-        if (levelsCompleted >= 93)
-            recepticles[10].SetActive(true);
-        if (levelsCompleted >= 101)
-            recepticles[11].SetActive(true);
-		if (levelsCompleted >= 109)
+		if (levelsCompleted >= 90)
+			recepticles[10].SetActive(true);
+		if (levelsCompleted >= 98)
+			recepticles[11].SetActive(true);
+		if (levelsCompleted >= 106)
 		{
 			recepticles[12].SetActive(true);
 			recepticles[13].SetActive(true);
