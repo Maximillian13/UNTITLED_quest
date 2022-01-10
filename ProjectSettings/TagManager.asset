@@ -10,6 +10,10 @@ TagManager:
   - Ground
   - Hands
   - BoxButton
+  - Recepticle
+  - Other
+  - Tube
+  - Music
   layers:
   - Default
   - TransparentFX

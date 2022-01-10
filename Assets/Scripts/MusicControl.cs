@@ -4,10 +4,23 @@ using UnityEngine;
 
 public class MusicControl : MonoBehaviour
 {
+
+	private float timeAlive = 0;
+
 	// Dont destroy the music until the end 
-	void Start ()
+	void Start()
 	{
-		DontDestroyOnLoad(this.gameObject);	
+		DontDestroyOnLoad(this.gameObject);
 	}
-	
+
+	void Update()
+	{
+		timeAlive += Time.deltaTime;
+	}
+
+	public float GetTimeAlive()
+	{
+		return timeAlive;
+	}
+
 }
